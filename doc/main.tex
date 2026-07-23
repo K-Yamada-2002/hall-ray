@@ -1,0 +1,227 @@
+\documentclass[10pt,a4paper]{ujarticle}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{problem}
+\usepackage{amsthm}
+\newtheorem{theorem}{定理}
+\newtheorem{lemma}{補題}
+\newtheorem{definition}{定義}
+\usepackage {comment}
+\usepackage{bm}
+\author{山田 航輝}
+\usepackage[top=30truemm,bottom=30truemm,left=25truemm,right=25truemm]{geometry}
+\usepackage{multicol}
+\renewcommand{\labelenumi}{(\arabic{enumi})}
+\title{LagrangeスペクトラムとHall's ray}
+\begin{document}
+\maketitle
+\begin{abstract}
+本稿では，Lagrange スペクトラムの定義，およびLagrange スペクトラムがHall's rayと呼ばれる半直線を含むことの証明を述べる．また，それらがどのように形式化されているかについても記述する．
+\end{abstract}
+
+\section{Lagrange スペクトラムとHall's ray}
+まず．本レポジトリで形式化するLagrangeスペクトラムの定義と，Hall's rayの存在について述べる．
+\begin{definition}
+自然数の両側無限列$(a_n)_{n\in\mathbb{Z}}\in (\mathbb{N}_{\ge 1})^\mathbb{Z}$と整数$i$に対して，
+$$
+\lambda_i((a_n)_{n\in\mathbb{Z}}) = [a_i; a_{i+1}, a_{i+2},\cdots] + [0; a_{i-1}, a_{i-2},\cdots]
+$$
+と定義する．ただし，$[c_0; c_1, c_2, \cdots]$は連分数
+$$
+c_0 + \frac{1}{c_1 + \frac{1}{c_2 + \cdots}}
+$$
+を表す．
+
+
+\textbf{Lagrangeスペクトラム}とは，
+$$
+L = \left\{\limsup_{i \to \infty}\lambda_i ((a_n)_{n\in\mathbb{Z}}) : (a_n)_{n\in\mathbb{Z}}\in (\mathbb{N}_{\ge 1})^\mathbb{Z}, \limsup_{i \to \infty}\lambda_i ((a_n)_{n\in\mathbb{Z}}) < \infty \right\}
+$$
+で定義される実数の部分集合である．
+\end{definition}
+\begin{theorem}[Hall, 1947]
+\label{theorem: C4}
+$$
+C(N) = \{[0;a_1, a_2, \cdots] : 1\le a_i \le N\}
+$$
+とする．このとき，
+$$
+C(4) + C(4) = \{x + y : x\in C(4), y\in C(4)\} = [\sqrt{2} - 1, 4\sqrt{2} - 4]
+$$
+である．
+\end{theorem}
+この系として，
+
+\begin{theorem}
+\label{theorem: ray}
+$$
+[6,\infty) \subset L.
+$$
+\end{theorem}
+が得られる．これと$L$が閉集合であること（これはまだ形式化していない）から，ある実数$c_F$より大きい実数が$L$に含まれることが分かる．$L$に含まれるこの半直線$[c_F, \infty)$を\textbf{Hall's ray}と呼ぶ．
+
+\section{Hall's rayが存在することの証明}
+\subsection{補題およびその証明}
+\cite{cusick}に従って証明する．
+\begin{lemma}
+\label{lemma: remove_interval}
+$a_1,\cdots, a_n \in \mathbb{N}_{\ge 1}$とし，以下の三つの型の区間を考える．
+\begin{enumerate}
+\item $[0;a_1,\cdots, a_n ,\overline{1,4}]$と$[0;a_1,\cdots, a_n ,\overline{4,1}]$を端点とする区間
+\item $[0;a_1,\cdots, a_n ,\overline{4,1}]$と$[0;a_1,\cdots, a_n , 2, \overline{4,1}]$を端点とする区間
+\item $[0;a_1,\cdots, a_n ,\overline{4,1}]$と$[0;a_1,\cdots, a_n , 3, \overline{4,1}]$を端点とする区間
+\end{enumerate}
+そして，
+\begin{enumerate}
+\item からは$[0;a_1,\cdots, a_n , 2, \overline{4,1}]$と$[0;a_1,\cdots, a_n , 1, \overline{1,4}]$を端点とする区間を
+\item からは$[0;a_1,\cdots, a_n , 3, \overline{4,1}]$と$[0;a_1,\cdots, a_n , 2, \overline{1,4}]$を端点とする区間を
+\item からは$[0;a_1,\cdots, a_n , 4, \overline{4,1}]$と$[0;a_1,\cdots, a_n , 3, \overline{1,4}]$を端点とする区間を
+\end{enumerate}
+それぞれ取り除くことを考える．このプロセスによって
+\begin{enumerate}
+\item の型の区間からは$r_{n+1} = 1$の（1）と（2）の型の区間が，
+\item の型の区間からは$r_{n+1} = 1$の（1）と（3）の型の区間が，
+\item の型の区間からは$r_{n+1} = 3$の（1）と$r_{n+1} = 4$の（1）の型の区間が
+\end{enumerate}
+それぞれ得られる．そして，このプロセスによって除かれる区間を$I$とし，生じる区間を$M_1, M_2$とすると，
+$$
+|M_i|\ge |I|
+$$である．ただし$|A|$は区間$A$の長さを表す．
+\end{lemma}
+\begin{proof}
+あとで書く
+\end{proof}
+
+\begin{lemma}
+\label{lemma: two_closed}
+$A_1, A_2$を有界な閉区間とし，$A_1$から開区間$I$を取り除いて左から順に$A_{11}, A_{12}$が生じたとする．このとき，$|A_2| \ge |I|$なら，
+$$
+A_1 + A_2 = (A_{11} \cup A_{12}) + A_2.
+$$
+\end{lemma}
+\begin{proof}
+$A_{11} + A_2$は$A_1 + A_2$と左端の点$l$を共有する．また，$A_{11} + A_2$の右端の点は$l + |A_{11}| + |A_2|$である．
+
+一方，$A_{12} + A_2$は$A_1 + A_2$と右端を共有し，左端の点は$l + |A_{11}| + |I|$である．$|A_2| \ge |I|$より，
+$A_{12} + A_2$の左端の点の方が$A_{11} + A_2$の右端の点よりも小さくなる．よって$(A_{11} \cup A_{12}) + A_2$は連結な閉区間であり，$A_1 + A_2$の右端と左端の点を含むから，$A_1 + A_2 = (A_{11} \cup A_{12}) + A_2$である．
+\end{proof}
+\begin{lemma}
+\label{lemma: sum_invariance}
+$A_1, A_2,\cdots A_r$を互いに素な有界閉区間の列とし，$A_1$から開区間$I$を取り除いて左から順に$A_{r+1}, A_{r+2}$が生じたとする．
+$$
+B = \bigcup_{i=1}^r A_i,\quad B^* = \bigcup_{i=2}^{r+2} A_i
+$$
+とする．このとき，すべての$2\le i\le r+2$について$|A_i| \ge |I|$なら，$B^* + B^* = B + B$
+\end{lemma}
+\begin{proof}
+$$
+A_1^* = A_{r+1} \cup A_{r+2}, \quad A_i^* = A_i\  (2\le i \le r)
+$$とする．
+補題\ref{lemma: two_closed}から，
+\begin{align*}
+A_1 + A_1 &= (A_{r+1} \cup A_{r+2}) + A_1 \\
+&=(A_{r+1} + A_1) \cup (A_{r+2} + A_1) \\
+&=(A_{r+1} + (A_{r+1} \cup A_{r+2})) \cup (A_{r+2} + (A_{r+1} \cup A_{r+2})) \\
+&=A_1^* + A_1^*, \\
+A_1 + A_i &= A_1^* + A_i^* \ (2\le i \le r)
+\end{align*}
+が分かる．よって
+\begin{align*}
+B + B &= \left(\bigcup_{j = 1}^r (A_1 + A_j)\right) + \left(\bigcup_{2\le i \le j \le r} (A_i + A_j)\right)\\
+&= \left(\bigcup_{j = 1}^r (A_1^* + A_j^*)\right) + \left(\bigcup_{2\le i \le j \le r} (A_i^* + A_j^*)\right)\\
+&= \bigcup_{1\le i \le j \le r} (A_i^* + A_j^*)\\
+&= B^* + B^*
+\end{align*}
+\end{proof}
+\begin{lemma}
+\label{lemma: sum_cap_eq_cap_sum}
+$C_1,C_2,\cdots$を有界閉集合の列とし，$C_{i+1} \subset C_i$とする．このとき，
+$$
+\bigcap_{i = 1}^\infty C_i + \bigcap_{i = 1}^\infty C_i = \bigcap_{i = 1}^\infty (C_i + C_i).
+$$
+\end{lemma}
+\begin{proof}
+各$i$について，$C_i + C_i$は左辺を含むから，$（左辺）\subset （右辺）$はすぐに分かる．
+
+$t\in \bigcap_{i = 1}^\infty (C_i + C_i)$とする．そして各$i$について，$V_i = \{(x_1,x_2) : x_1, x_2 \in C_i \}$とし，$T = \{(x_1,x_2) : x_1+ x_2 = t \}$とする．$V_i$は閉集合で有界，$T$は閉集合であるから，$T\cap V_i$は有界閉集合である．$t\in C_i + C_i$だから，$T\cap V_i \neq \emptyset$である．$T\cap V_{i+1} \subset T \cap V_i$なので，
+$$
+\bigcap_{i=1}^\infty (T \cap V_i) = T\cap \bigcap_{i=1}^\infty V_i \neq \emptyset
+$$
+である．よって，ある$(x_1, x_2) \in T\cap \bigcap_{i=1}^\infty V_i \neq \emptyset$がとれる．$(x_1, x_2)\in T$だから$x_1 + x_2 = t$，また$(x_1, x_2)\in \bigcap_{i=1}^\infty V_i$より$x_1, x_2 \in \bigcap_{i=1}^\infty C_i$となり，
+$$
+\bigcap_{i = 1}^\infty (C_i + C_i) \subset 
+\bigcap_{i = 1}^\infty C_i + \bigcap_{i = 1}^\infty C_i
+$$
+が分かる．以上より，
+$$
+\bigcap_{i = 1}^\infty C_i + \bigcap_{i = 1}^\infty C_i = \bigcap_{i = 1}^\infty (C_i + C_i).
+$$
+となる．
+\end{proof}
+
+\subsection{定理\ref{theorem: C4}の証明}
+まず，
+$S_0 = [(\sqrt{2} - 1)/2, 2(\sqrt{2} - 1)]$とし，
+\begin{itemize}
+\item $S_i \supset S_{i + 1}$
+\item $\bigcap_{i=0}^\infty S_i = C(4)$
+\item $S_i + S_i = S_{i + 1} + S_{i + 1}$
+\end{itemize}
+となる有界閉集合の列を構成する．
+
+$$
+[0;\overline{4, 1}] = \frac{\sqrt{2} - 1}{2}, \quad [0;\overline{1, 4}] = 2(\sqrt{2} - 1)
+$$
+であり，これらは$C(4)$の最小と最大の元である．また，$S_0$は補題\ref{lemma: remove_interval}における（1）の型の区間である．
+
+$C(4)$は区間$S_0$から，補題\ref{lemma: remove_interval}の手順に従って（可算無限個）区間を取り除いていくことで得られる．ここでは，順番を変えて，長い順に取り除くことにし，$D_0, D_1, D_2, \cdots$の順で取り除くことにする．したがって，$|D_i| \ge |D_{i +1}|$である．
+
+そして，$S_i = S_{i-1}\setminus D_{i -1}$とする．$B = S_i$，$B^* = S_{i + 1}$，$I = D_i$に対して補題\ref{lemma: sum_invariance}を適用するために，$D_i$が$S_{i + 1}$に残るどの区間よりも小さいことを示す．
+
+$S_i$内の閉区間$H_i$から$D_i$を取り除くことで，$S_{i+1}$が得られるとしよう．$D_i$をとり除くことで，$H_i$は$H_{i1}, H_{i2}$の二つの区間に分かれる．ここで，$B = S_{i - 1}$，$B^* = S_{i}$，$I = D_{i- 1}$に対して補題\ref{lemma: sum_invariance}の適用条件が満たされていたとすれば，$|D_{i - 1}| \ge |D_i|$であるから，閉区間に関する$|H_{ij}| \ge |D_i|$を示せば十分である．
+
+補題\ref{lemma: remove_interval}の手順に従って区間を取り除いていったとき，$D_i$が取り除かれる際にできる閉区間を$M_1, M_2$とする．補題\ref{lemma: remove_interval}より，$|M_j| \ge |D_i|$であり，$H_{ij}$が$M_1$または$M_2$と等しい，または$M_1, M_2$を含めば，$|H_{ij}| \ge |D_i|$である，
+
+$H_{ij}$が$M_1$または$M_2$に真に含まれていたとすると，$H_{ij}$の$D_i$とは反対側で取り除かれる区間$D_m$は$M_1$ないし$M_2$に含まれる．したがって，補題\ref{lemma: remove_interval}の手順に従って区間を取り除いていったとき，$D_m$は，$D_i$の後に取り除かれなくてはならない．よって，その際$D_m$を取り除くことによって得られる区間$N$（$D_m$と$D_i$に挟まれている側）は補題\ref{lemma: remove_interval}から$|N|\ge |D_m|$を満たす．また，大きい順に取り除いていったとき，$D_m$は$D_i$より先に取り除かれていたのだから，$m < i$であり，
+$$
+|H_{ij}| \ge |N| \ge |D_m| \ge |D_i|
+$$
+が分かる．よって$B = S_i$，$B^* = S_{i + 1}$，$I = D_i$に対して補題\ref{lemma: sum_invariance}を適用でき，$S_i + S_i = S_{i + 1} + S_{i + 1}$となる．作り方から$S_i supset S_{i + 1}$や$\bigcap_{i=0}^\infty S_i = C(4)$だから，求める有界閉集合の列が得られた．
+
+よって補題\ref{lemma: sum_cap_eq_cap_sum}から，
+\begin{align*}
+C(4) + C(4) &= \bigcap_{i = 0}^\infty S_i + \bigcap_{i = 0}^\infty S_i \\
+&= \bigcap_{i = 0}^\infty (S_i + S_i) \\
+&= S_0 + S_0\\
+&= [\sqrt{2} - 1, 4\sqrt{2} - 4]
+\end{align*}
+分かる．\hfill \qed
+\subsection{定理\ref{theorem: C4}による定理\ref{theorem: ray}の証明}
+$[\sqrt{2} - 1, 4\sqrt{2} - 4]$の大きさは$1$より大きいから，$6\le l$をとると，
+$$
+l = a + [0;b_1, b_2, \cdots ] + [0;c_1, c_2, \cdots ]
+$$
+と表せる．ここで，$a$は$5$以上の整数，$b_i, c_i$は$1\le b_i,c_i\le 4$なる整数である．
+
+自然数の両側無限列$A$を
+$$
+A = (\cdots, 1, 1, a, b_1, a, c_1, b_2, b_1, a, c_1, c_2,  b_3, b_2, b_1, a, c_1, c_2, c_3, \cdots)
+$$
+と定める（最初の$a$の場所を$0$番目としておく）．すると，$a$が$5$以上だから，それ以外の場所での$\lambda_i$の値は$\limsup$を取る際に無視してよく，
+$$
+\limsup_{i \to \infty} \lambda_i(A) = l
+$$
+となる．つまり$l \in L$となる．したがって，
+$$
+[6,\infty) \subset L
+$$
+が分かる．\hfill \qed
+\begin{thebibliography}{99}
+%\bibitem{ma79} Markoff, A. (1879) {\it Sur les formes quadratiques binaires indéfinies.} Math. Ann. 15, 381–406. 
+%\bibitem{ma80} Markoff, A. (1880) {\it Sur les formes quadratiques binaires indéfinies.} Math. Ann. 17, 379–399. 
+%\bibitem{hall} Hall, M. (1947). On the Sum and Product of Continued Fractions. Annals of Mathematics, 48(4), 966–993. 
+\bibitem{cusick} T.~W. Cusick and M.~E. Flahive, {\it The Markoff and Lagrange spectra}, Mathematical Surveys and Monographs, 30, Amer. Math. Soc., Providence, RI, 1989; MR1010419
+\end{thebibliography}
+\end{document}
