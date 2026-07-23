@@ -3,225 +3,547 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
-\usepackage{problem}
 \usepackage{amsthm}
-\newtheorem{theorem}{定理}
-\newtheorem{lemma}{補題}
-\newtheorem{definition}{定義}
-\usepackage {comment}
 \usepackage{bm}
-\author{山田 航輝}
+\usepackage{url}
 \usepackage[top=30truemm,bottom=30truemm,left=25truemm,right=25truemm]{geometry}
-\usepackage{multicol}
+
+\newtheorem{theorem}{定理}
+\newtheorem{lemma}[theorem]{補題}
+\newtheorem{definition}[theorem]{定義}
+\newtheorem{remark}[theorem]{注意}
+\renewcommand{\proofname}{証明}
+
+\newcommand{\Npos}{\mathbb{N}_{\ge 1}}
+\newcommand{\Mink}{\mathbin{+_{\mathrm M}}}
+\newcommand{\length}[1]{\lvert #1\rvert}
+
 \renewcommand{\labelenumi}{(\arabic{enumi})}
-\title{LagrangeスペクトラムとHall's ray}
+
+\author{山田 航輝}
+\title{Lagrange スペクトラムと Hall's ray}
+
 \begin{document}
 \maketitle
+
 \begin{abstract}
-本稿では，Lagrange スペクトラムの定義，およびLagrange スペクトラムがHall's rayと呼ばれる半直線を含むことの証明を述べる．また，それらがどのように形式化されているかについても記述する．
+本稿では，両側無限連分数による Lagrange スペクトラムの記述を採用し，
+Hall の連分数 Cantor 集合に関する定理
+\[
+  C(4)+C(4)=[\sqrt2-1,4\sqrt2-4]
+\]
+を証明する．さらに，この定理から $[6,\infty)\subset L$ を導く際に必要な
+両側無限列を明示し，その Lagrange 値を厳密に計算する．
+最後に，Lean 4 と Mathlib による形式化に向けて，証明を独立した補題へ分解する．
 \end{abstract}
 
-\section{Lagrange スペクトラムとHall's ray}
-まず．本レポジトリで形式化するLagrangeスペクトラムの定義と，Hall's rayの存在について述べる．
+\section{Lagrange スペクトラム}
+
+正整数列 $(c_n)_{n\ge 0}$ に対し，
+\[
+  [c_0;c_1,c_2,\ldots]
+  =c_0+\cfrac1{c_1+\cfrac1{c_2+\ddots}}
+\]
+と書く．正整数を部分商とする無限連分数は収束する．
+
 \begin{definition}
-自然数の両側無限列$(a_n)_{n\in\mathbb{Z}}\in (\mathbb{N}_{\ge 1})^\mathbb{Z}$と整数$i$に対して，
-$$
-\lambda_i((a_n)_{n\in\mathbb{Z}}) = [a_i; a_{i+1}, a_{i+2},\cdots] + [0; a_{i-1}, a_{i-2},\cdots]
-$$
-と定義する．ただし，$[c_0; c_1, c_2, \cdots]$は連分数
-$$
-c_0 + \frac{1}{c_1 + \frac{1}{c_2 + \cdots}}
-$$
-を表す．
-
-
-\textbf{Lagrangeスペクトラム}とは，
-$$
-L = \left\{\limsup_{i \to \infty}\lambda_i ((a_n)_{n\in\mathbb{Z}}) : (a_n)_{n\in\mathbb{Z}}\in (\mathbb{N}_{\ge 1})^\mathbb{Z}, \limsup_{i \to \infty}\lambda_i ((a_n)_{n\in\mathbb{Z}}) < \infty \right\}
-$$
-で定義される実数の部分集合である．
+\label{def:lagrange-spectrum}
+$A=(a_n)_{n\in\mathbb Z}\in(\Npos)^{\mathbb Z}$ と $i\in\mathbb Z$ に対して
+\[
+  \lambda_i(A)
+  =[a_i;a_{i+1},a_{i+2},\ldots]
+   +[0;a_{i-1},a_{i-2},\ldots]
+\]
+とおく．Lagrange スペクトラムを
+\[
+  L=
+  \left\{
+    \limsup_{i\to\infty}\lambda_i(A):
+    A\in(\Npos)^{\mathbb Z},\
+    \limsup_{i\to\infty}\lambda_i(A)<\infty
+  \right\}
+\]
+と定める．
 \end{definition}
+
+\begin{remark}
+この定義は，無理数の Diophantus 近似定数を用いる通常の定義と同値である
+\cite[Chapter~1]{cusick}．本稿では Hall の構成を直接記述しやすい
+定義 \ref{def:lagrange-spectrum} を出発点とする．
+\end{remark}
+
+$X,Y\subset\mathbb R$ に対し，その Minkowski 和を
+\[
+  X\Mink Y=\{x+y:x\in X,\ y\in Y\}
+\]
+と書く．以下では，式が煩雑にならない箇所では通常どおり $X+Y$ と略記する．
+
+\begin{definition}
+$N\in\Npos$ に対して
+\[
+  C(N)=
+  \left\{
+    [0;a_1,a_2,\ldots]:1\le a_i\le N\quad(i\ge1)
+  \right\}
+\]
+とおく．
+\end{definition}
+
 \begin{theorem}[Hall, 1947]
-\label{theorem: C4}
-$$
-C(N) = \{[0;a_1, a_2, \cdots] : 1\le a_i \le N\}
-$$
-とする．このとき，
-$$
-C(4) + C(4) = \{x + y : x\in C(4), y\in C(4)\} = [\sqrt{2} - 1, 4\sqrt{2} - 4]
-$$
-である．
+\label{theorem:C4}
+\[
+  C(4)+C(4)=[\sqrt2-1,4\sqrt2-4].
+\]
 \end{theorem}
-この系として，
 
 \begin{theorem}
-\label{theorem: ray}
-$$
-[6,\infty) \subset L.
-$$
+\label{theorem:ray}
+\[
+  [6,\infty)\subset L.
+\]
 \end{theorem}
-が得られる．これと$L$が閉集合であること（これはまだ形式化していない）から，ある実数$c_F$より大きい実数が$L$に含まれることが分かる．$L$に含まれるこの半直線$[c_F, \infty)$を\textbf{Hall's ray}と呼ぶ．
 
-\section{Hall's rayが存在することの証明}
-\subsection{補題およびその証明}
-\cite{cusick}に従って証明する．
-\begin{lemma}
-\label{lemma: remove_interval}
-$a_1,\cdots, a_n \in \mathbb{N}_{\ge 1}$とし，以下の三つの型の区間を考える．
-\begin{enumerate}
-\item $[0;a_1,\cdots, a_n ,\overline{1,4}]$と$[0;a_1,\cdots, a_n ,\overline{4,1}]$を端点とする区間
-\item $[0;a_1,\cdots, a_n ,\overline{4,1}]$と$[0;a_1,\cdots, a_n , 2, \overline{4,1}]$を端点とする区間
-\item $[0;a_1,\cdots, a_n ,\overline{4,1}]$と$[0;a_1,\cdots, a_n , 3, \overline{4,1}]$を端点とする区間
-\end{enumerate}
-そして，
-\begin{enumerate}
-\item からは$[0;a_1,\cdots, a_n , 2, \overline{4,1}]$と$[0;a_1,\cdots, a_n , 1, \overline{1,4}]$を端点とする区間を
-\item からは$[0;a_1,\cdots, a_n , 3, \overline{4,1}]$と$[0;a_1,\cdots, a_n , 2, \overline{1,4}]$を端点とする区間を
-\item からは$[0;a_1,\cdots, a_n , 4, \overline{4,1}]$と$[0;a_1,\cdots, a_n , 3, \overline{1,4}]$を端点とする区間を
-\end{enumerate}
-それぞれ取り除くことを考える．このプロセスによって
-\begin{enumerate}
-\item の型の区間からは$r_{n+1} = 1$の（1）と（2）の型の区間が，
-\item の型の区間からは$r_{n+1} = 1$の（1）と（3）の型の区間が，
-\item の型の区間からは$r_{n+1} = 3$の（1）と$r_{n+1} = 4$の（1）の型の区間が
-\end{enumerate}
-それぞれ得られる．そして，このプロセスによって除かれる区間を$I$とし，生じる区間を$M_1, M_2$とすると，
-$$
-|M_i|\ge |I|
-$$である．ただし$|A|$は区間$A$の長さを表す．
-\end{lemma}
-\begin{proof}
-あとで書く
-\end{proof}
+定理 \ref{theorem:ray} が与える $[6,\infty)$ は Hall の方法で得られる半直線である．
+一方，通常 ``Hall's ray'' という語は，$L$ に含まれる最大の半直線
+$[c_F,\infty)$ を指す．$L$ の閉性を用いればその左端 $c_F$ が存在し，
+Freiman はさらにその正確な値を決定した．本稿の目標は
+$c_F$ の決定ではなく，定理 \ref{theorem:ray} の形式化である．
 
-\begin{lemma}
-\label{lemma: two_closed}
-$A_1, A_2$を有界な閉区間とし，$A_1$から開区間$I$を取り除いて左から順に$A_{11}, A_{12}$が生じたとする．このとき，$|A_2| \ge |I|$なら，
-$$
-A_1 + A_2 = (A_{11} \cup A_{12}) + A_2.
-$$
-\end{lemma}
-\begin{proof}
-$A_{11} + A_2$は$A_1 + A_2$と左端の点$l$を共有する．また，$A_{11} + A_2$の右端の点は$l + |A_{11}| + |A_2|$である．
+\section{連分数区間の準備}
 
-一方，$A_{12} + A_2$は$A_1 + A_2$と右端を共有し，左端の点は$l + |A_{11}| + |I|$である．$|A_2| \ge |I|$より，
-$A_{12} + A_2$の左端の点の方が$A_{11} + A_2$の右端の点よりも小さくなる．よって$(A_{11} \cup A_{12}) + A_2$は連結な閉区間であり，$A_1 + A_2$の右端と左端の点を含むから，$A_1 + A_2 = (A_{11} \cup A_{12}) + A_2$である．
-\end{proof}
-\begin{lemma}
-\label{lemma: sum_invariance}
-$A_1, A_2,\cdots A_r$を互いに素な有界閉区間の列とし，$A_1$から開区間$I$を取り除いて左から順に$A_{r+1}, A_{r+2}$が生じたとする．
-$$
-B = \bigcup_{i=1}^r A_i,\quad B^* = \bigcup_{i=2}^{r+2} A_i
-$$
-とする．このとき，すべての$2\le i\le r+2$について$|A_i| \ge |I|$なら，$B^* + B^* = B + B$
-\end{lemma}
-\begin{proof}
-$$
-A_1^* = A_{r+1} \cup A_{r+2}, \quad A_i^* = A_i\  (2\le i \le r)
-$$とする．
-補題\ref{lemma: two_closed}から，
+\subsection{共通接頭辞による長さの変化}
+
+$w=(a_1,\ldots,a_n)$ を正整数の有限語，$x>1$ を実数とし，
+\[
+  \Phi_w(x)=[0;a_1,\ldots,a_n,x]
+\]
+とおく．空語に対しては $\Phi_\varnothing(x)=[0;x]=1/x$ とする．
+$p_n/q_n=[0;a_1,\ldots,a_n]$ を収束分数とすれば
+\[
+  \Phi_w(x)=\frac{p_nx+p_{n-1}}{q_nx+q_{n-1}}.
+\]
+連続する収束分数の行列式が $\pm1$ であることから，$x,y>1$ に対して
+\begin{equation}
+\label{eq:mobius-length}
+  \lvert\Phi_w(x)-\Phi_w(y)\rvert
+  =
+  \frac{\lvert x-y\rvert}
+       {(q_nx+q_{n-1})(q_ny+q_{n-1})}.
+\end{equation}
+特に $r=q_{n-1}/q_n$ とおけば $0\le r\le1$ であり，共通接頭辞を持つ
+二つの区間の長さの比は，端点と $r$ の有理式として評価できる．
+空語の場合は $r=0$ とみなせば，同じ比の公式が成り立つ．
+
+\subsection{三種類の区間と除去規則}
+
+完全商
+\[
+  \xi=[\overline{4,1}]=2+2\sqrt2,\qquad
+  \eta=[\overline{1,4}]=\frac{1+\sqrt2}{2}
+\]
+を用いる．ここで上線はその有限語の無限反復を表す．有限語 $w$ に対して，
+端点の順序には依存せず，次の三種類の閉区間を定める：
 \begin{align*}
-A_1 + A_1 &= (A_{r+1} \cup A_{r+2}) + A_1 \\
-&=(A_{r+1} + A_1) \cup (A_{r+2} + A_1) \\
-&=(A_{r+1} + (A_{r+1} \cup A_{r+2})) \cup (A_{r+2} + (A_{r+1} \cup A_{r+2})) \\
-&=A_1^* + A_1^*, \\
-A_1 + A_i &= A_1^* + A_i^* \ (2\le i \le r)
+  T_1(w)&=\text{$[0;w,\overline{1,4}]$ と
+                    $[0;w,\overline{4,1}]$ を端点とする閉区間},\\
+  T_2(w)&=\text{$[0;w,\overline{4,1}]$ と
+                    $[0;w,2,\overline{4,1}]$ を端点とする閉区間},\\
+  T_3(w)&=\text{$[0;w,\overline{4,1}]$ と
+                    $[0;w,3,\overline{4,1}]$ を端点とする閉区間}.
 \end{align*}
-が分かる．よって
+各区間から，次の端点を持つ開区間を除く：
 \begin{align*}
-B + B &= \left(\bigcup_{j = 1}^r (A_1 + A_j)\right) + \left(\bigcup_{2\le i \le j \le r} (A_i + A_j)\right)\\
-&= \left(\bigcup_{j = 1}^r (A_1^* + A_j^*)\right) + \left(\bigcup_{2\le i \le j \le r} (A_i^* + A_j^*)\right)\\
-&= \bigcup_{1\le i \le j \le r} (A_i^* + A_j^*)\\
-&= B^* + B^*
+  G_1(w)&:\quad
+    [0;w,1,\overline{1,4}],\
+    [0;w,2,\overline{4,1}],\\
+  G_2(w)&:\quad
+    [0;w,2,\overline{1,4}],\
+    [0;w,3,\overline{4,1}],\\
+  G_3(w)&:\quad
+    [0;w,3,\overline{1,4}],\
+    [0;w,4,\overline{4,1}].
 \end{align*}
-\end{proof}
-\begin{lemma}
-\label{lemma: sum_cap_eq_cap_sum}
-$C_1,C_2,\cdots$を有界閉集合の列とし，$C_{i+1} \subset C_i$とする．このとき，
-$$
-\bigcap_{i = 1}^\infty C_i + \bigcap_{i = 1}^\infty C_i = \bigcap_{i = 1}^\infty (C_i + C_i).
-$$
+周期性から
+\[
+  [1;\overline{4,1}]=[\overline{1,4}]=\eta,\qquad
+  [4;\overline{1,4}]=[\overline{4,1}]=\xi
+\]
+である．したがって，除去後の二つの閉区間は
+\begin{align}
+\label{eq:children}
+  T_1(w)\setminus G_1(w)&=T_1(w,1)\cup T_2(w),\notag\\
+  T_2(w)\setminus G_2(w)&=T_1(w,2)\cup T_3(w),\\
+  T_3(w)\setminus G_3(w)&=T_1(w,3)\cup T_1(w,4).\notag
+\end{align}
+
+\begin{lemma}[Hall の長さ条件]
+\label{lemma:remove-interval}
+式 \eqref{eq:children} の各除去において，取り除く開区間を $I$，
+残る二つの閉区間を $M_1,M_2$ とすると
+\[
+  \length{M_1}\ge\length I,\qquad
+  \length{M_2}\ge\length I.
+\]
 \end{lemma}
-\begin{proof}
-各$i$について，$C_i + C_i$は左辺を含むから，$（左辺）\subset （右辺）$はすぐに分かる．
 
-$t\in \bigcap_{i = 1}^\infty (C_i + C_i)$とする．そして各$i$について，$V_i = \{(x_1,x_2) : x_1, x_2 \in C_i \}$とし，$T = \{(x_1,x_2) : x_1+ x_2 = t \}$とする．$V_i$は閉集合で有界，$T$は閉集合であるから，$T\cap V_i$は有界閉集合である．$t\in C_i + C_i$だから，$T\cap V_i \neq \emptyset$である．$T\cap V_{i+1} \subset T \cap V_i$なので，
-$$
-\bigcap_{i=1}^\infty (T \cap V_i) = T\cap \bigcap_{i=1}^\infty V_i \neq \emptyset
-$$
-である．よって，ある$(x_1, x_2) \in T\cap \bigcap_{i=1}^\infty V_i \neq \emptyset$がとれる．$(x_1, x_2)\in T$だから$x_1 + x_2 = t$，また$(x_1, x_2)\in \bigcap_{i=1}^\infty V_i$より$x_1, x_2 \in \bigcap_{i=1}^\infty C_i$となり，
-$$
-\bigcap_{i = 1}^\infty (C_i + C_i) \subset 
-\bigcap_{i = 1}^\infty C_i + \bigcap_{i = 1}^\infty C_i
-$$
-が分かる．以上より，
-$$
-\bigcap_{i = 1}^\infty C_i + \bigcap_{i = 1}^\infty C_i = \bigcap_{i = 1}^\infty (C_i + C_i).
-$$
-となる．
+\begin{proof}
+$k=1,2,3$ をそれぞれ $T_1,T_2,T_3$ の場合に対応させ，
+\[
+  \delta=\frac{\sqrt2-1}{2},\qquad
+  \varepsilon=2(\sqrt2-1)
+\]
+とおく．共通接頭辞 $w$ の後に現れる四つの完全商を，小さい順に
+\[
+  x_0=k+\delta,\quad
+  x_1=k+\varepsilon,\quad
+  x_2=k+1+\delta,\quad
+  x_3=4+\varepsilon
+\]
+と書ける．$M_1,I,M_2$ の端点は，それぞれ
+$(x_0,x_1),(x_1,x_2),(x_2,x_3)$ である．
+
+式 \eqref{eq:mobius-length} と $0\le r\le1$ から
+\begin{align}
+\label{eq:length-ratio-bounds}
+  \frac{\length{M_1}}{\length I}
+  &=
+  \frac{x_1-x_0}{x_2-x_1}\,
+  \frac{x_2+r}{x_0+r}
+  \ge
+  \frac{x_1-x_0}{x_2-x_1}\,
+  \frac{x_2+1}{x_0+1},\notag\\
+  \frac{\length{M_2}}{\length I}
+  &=
+  \frac{x_3-x_2}{x_2-x_1}\,
+  \frac{x_1+r}{x_3+r}
+  \ge
+  \frac{x_3-x_2}{x_2-x_1}\,
+  \frac{x_1}{x_3}.
+\end{align}
+右辺を整理すると次の表を得る．
+\[
+\begin{array}{c|c|c}
+ k&
+ \text{$\length{M_1}/\length I$ の下界}&
+ \text{$\length{M_2}/\length I$ の下界}\\ \hline
+ 1&(15+72\sqrt2)/49&(1+3\sqrt2)/2\\
+ 2&(75+192\sqrt2)/161&(2+11\sqrt2)/7\\
+ 3&(159+360\sqrt2)/329&(-3+15\sqrt2)/14
+\end{array}
+\]
+$\sqrt2>7/5$（両辺を二乗すれば $2>49/25$）であるから，表の六つの下界は
+それぞれ
+\[
+  \frac{579}{245},\quad
+  \frac{13}{5},\quad
+  \frac{1719}{805},\quad
+  \frac{87}{35},\quad
+  \frac{663}{329},\quad
+  \frac97
+\]
+より大きい．これらはすべて $1$ より大きいので主張が従う．
 \end{proof}
 
-\subsection{定理\ref{theorem: C4}の証明}
-まず，
-$S_0 = [(\sqrt{2} - 1)/2, 2(\sqrt{2} - 1)]$とし，
-\begin{itemize}
-\item $S_i \supset S_{i + 1}$
-\item $\bigcap_{i=0}^\infty S_i = C(4)$
-\item $S_i + S_i = S_{i + 1} + S_{i + 1}$
-\end{itemize}
-となる有界閉集合の列を構成する．
+\begin{remark}
+上の三つの長さ比は，文献 \cite{verify-freiman} の
+\texttt{misc/hall\_proof.ipynb} でも数値的に検算されている．
+ここでは形式化に使えるように，Möbius 変換の恒等式から厳密な代数的不等式へ
+帰着した．
+\end{remark}
 
-$$
-[0;\overline{4, 1}] = \frac{\sqrt{2} - 1}{2}, \quad [0;\overline{1, 4}] = 2(\sqrt{2} - 1)
-$$
-であり，これらは$C(4)$の最小と最大の元である．また，$S_0$は補題\ref{lemma: remove_interval}における（1）の型の区間である．
+\subsection{$C(4)$ の区間除去表示}
 
-$C(4)$は区間$S_0$から，補題\ref{lemma: remove_interval}の手順に従って（可算無限個）区間を取り除いていくことで得られる．ここでは，順番を変えて，長い順に取り除くことにし，$D_0, D_1, D_2, \cdots$の順で取り除くことにする．したがって，$|D_i| \ge |D_{i +1}|$である．
+\begin{lemma}
+\label{lemma:C4-construction}
+\[
+  T_1(\varnothing)
+  =
+  \left[\frac{\sqrt2-1}{2},\,2(\sqrt2-1)\right]
+\]
+から式 \eqref{eq:children} の規則を再帰的に適用し，現れるすべての開区間
+$G_j(w)$ を除くと，残る集合はちょうど $C(4)$ である．
+\end{lemma}
 
-そして，$S_i = S_{i-1}\setminus D_{i -1}$とする．$B = S_i$，$B^* = S_{i + 1}$，$I = D_i$に対して補題\ref{lemma: sum_invariance}を適用するために，$D_i$が$S_{i + 1}$に残るどの区間よりも小さいことを示す．
+\begin{proof}
+$T_1(\varnothing)$ の端点の計算は
+\[
+  [0;\overline{4,1}]=\frac1\xi=\frac{\sqrt2-1}{2},\qquad
+  [0;\overline{1,4}]=\frac1\eta=2(\sqrt2-1)
+\]
+による．式 \eqref{eq:children} は，許される次の部分商
+$1,2,3,4$ に応じて区間を細分する操作である．したがって，
+$C(4)$ の各点はどの段階でも除かれない．
 
-$S_i$内の閉区間$H_i$から$D_i$を取り除くことで，$S_{i+1}$が得られるとしよう．$D_i$をとり除くことで，$H_i$は$H_{i1}, H_{i2}$の二つの区間に分かれる．ここで，$B = S_{i - 1}$，$B^* = S_{i}$，$I = D_{i- 1}$に対して補題\ref{lemma: sum_invariance}の適用条件が満たされていたとすれば，$|D_{i - 1}| \ge |D_i|$であるから，閉区間に関する$|H_{ij}| \ge |D_i|$を示せば十分である．
+逆に，どの開区間からも除かれない点を一つ取る．状態 $T_1(w)$ からは，
+次の部分商が $1$ なら直ちに $T_1(w,1)$ へ進む．次の部分商が
+$2,3,4$ なら，それぞれ
+\[
+  T_1(w)\longrightarrow T_2(w)\longrightarrow T_1(w,2),
+\]
+\[
+  T_1(w)\longrightarrow T_2(w)\longrightarrow T_3(w)
+  \longrightarrow T_1(w,3)\ \text{または}\ T_1(w,4)
+\]
+という有限個の分岐を経る．従って，その点を含む子区間を選び続けることで，
+部分商が $1$ 以上 $4$ 以下の無限語が得られる．
+長さ $n$ の連分数 cylinder の直径は収束分数の分母を $q_n$ として
+$O(q_n^{-2})$ であり，$q_n$ は少なくとも Fibonacci 数の速さで増加するため，
+この入れ子の閉区間の直径は $0$ に収束する．従って元の点は，得られた
+無限語の連分数値に等しく，$C(4)$ に属する．
+\end{proof}
 
-補題\ref{lemma: remove_interval}の手順に従って区間を取り除いていったとき，$D_i$が取り除かれる際にできる閉区間を$M_1, M_2$とする．補題\ref{lemma: remove_interval}より，$|M_j| \ge |D_i|$であり，$H_{ij}$が$M_1$または$M_2$と等しい，または$M_1, M_2$を含めば，$|H_{ij}| \ge |D_i|$である，
+補題 \ref{lemma:C4-construction} に現れる開区間全体を
+$D_0,D_1,\ldots$ と，長さの非増加順に並べる．この並べ方が可能であることも
+確認しておく．各開区間は互いに素で，全体が有界区間に含まれるから，
+任意の $\varepsilon>0$ に対して長さ $\varepsilon$ 以上のものは有限個しかない．
+従って，残っている区間の中から最大長のものを順に選べる．
 
-$H_{ij}$が$M_1$または$M_2$に真に含まれていたとすると，$H_{ij}$の$D_i$とは反対側で取り除かれる区間$D_m$は$M_1$ないし$M_2$に含まれる．したがって，補題\ref{lemma: remove_interval}の手順に従って区間を取り除いていったとき，$D_m$は，$D_i$の後に取り除かれなくてはならない．よって，その際$D_m$を取り除くことによって得られる区間$N$（$D_m$と$D_i$に挟まれている側）は補題\ref{lemma: remove_interval}から$|N|\ge |D_m|$を満たす．また，大きい順に取り除いていったとき，$D_m$は$D_i$より先に取り除かれていたのだから，$m < i$であり，
-$$
-|H_{ij}| \ge |N| \ge |D_m| \ge |D_i|
-$$
-が分かる．よって$B = S_i$，$B^* = S_{i + 1}$，$I = D_i$に対して補題\ref{lemma: sum_invariance}を適用でき，$S_i + S_i = S_{i + 1} + S_{i + 1}$となる．作り方から$S_i supset S_{i + 1}$や$\bigcap_{i=0}^\infty S_i = C(4)$だから，求める有界閉集合の列が得られた．
+\begin{lemma}
+\label{lemma:component-lower-bound}
+$D_0,\ldots,D_{n-1}$ を除いた後に残る各閉区間の長さは
+$\length{D_n}$ 以上である．
+\end{lemma}
 
-よって補題\ref{lemma: sum_cap_eq_cap_sum}から，
+\begin{proof}
+$n$ に関する帰納法で示す．$n=0$ のときは，すべての穴が
+$T_1(\varnothing)$ に含まれるので明らかである．
+結論が $n$ について成り立つと仮定し，
+$D_n$ を含む現在の成分を $H$ とし，$D_n$ を除いて生じる左右の成分を考える．
+他の成分については帰納法の仮定と
+$\length{D_n}\ge\length{D_{n+1}}$ を用いればよい．
+
+$D_n$ の片側に，補題 \ref{lemma:remove-interval} で生じる標準的な子区間を
+$M$ とする．$M$ の内部に先に除かれた穴がなければ，新しい成分は $M$ を含み，
+\[
+  \length M\ge\length{D_n}
+\]
+である．先に除かれた穴がある場合は，そのうち $D_n$ に最も近いものを
+$D_m$ とする．$D_m$ は再帰木において $M$ の子孫である．$D_m$ の除去で生じる
+二つの標準的な子区間のうち $D_n$ 側のものを $N$ とすると，
+$D_m$ の選び方から $N$ は現在の新しい成分に含まれる．さらに
+補題 \ref{lemma:remove-interval} と $m<n$ から
+\[
+  \length N\ge\length{D_m}\ge\length{D_n}.
+\]
+反対側も同様である．従って新しく生じる両成分が所望の評価を満たし，
+帰納法が閉じる．
+\end{proof}
+
+\section{Minkowski 和に関する補題}
+
+\begin{lemma}
+\label{lemma:two-closed}
+$A=[a,b]$ と $K=[u,v]$ を有界閉区間とする．
+$a<c<d<b$ とし，$I=(c,d)$，$A^-=[a,c]$，$A^+=[d,b]$ とおく．
+$\length K\ge\length I$ ならば
+\[
+  A+K=(A^-\cup A^+)+K.
+\]
+\end{lemma}
+
+\begin{proof}
+\[
+  A^-+K=[a+u,c+v],\qquad A^++K=[d+u,b+v].
+\]
+仮定 $\length K=v-u\ge d-c=\length I$ は $c+v\ge d+u$ と同値なので，
+右辺の二つの区間は重なる．その和集合は $[a+u,b+v]=A+K$ である．
+\end{proof}
+
+\begin{lemma}[一つの穴を除いても和集合の和は変わらない]
+\label{lemma:sum-invariance}
+$B$ を有限個の有界閉区間の和とし，$A_1,\ldots,A_r$ を
+$B$ の相異なる連結成分とする．従って
+\[
+  B=\bigcup_{i=1}^r A_i
+\]
+である．
+$A_1$ から開区間 $I$ を除いた二つの閉区間を $A_1^-,A_1^+$ とし，
+\[
+  B^*=(A_1^-\cup A_1^+)\cup\bigcup_{i=2}^r A_i
+\]
+とおく．$B^*$ のすべての成分の長さが $\length I$ 以上ならば
+\[
+  B^*+B^*=B+B.
+\]
+\end{lemma}
+
+\begin{proof}
+$A_1^-,A_1^+,A_2,\ldots,A_r$ は $B^*$ の連結成分である．従って仮定から
+\[
+  \length{A_1^-},\ \length{A_1^+},\
+  \length{A_2},\ldots,\length{A_r}\ge\length I.
+\]
+また $A_1$ は $I$ を含むから $\length{A_1}\ge\length I$ である．
+$i\ge2$ に対して，補題 \ref{lemma:two-closed} を $A_1$ と $A_i$ に適用すると
+\[
+  A_1+A_i=(A_1^-\cup A_1^+)+A_i
+\]
+を得る．また最初に $A_1$ と $A_1$ に同じ補題を適用し，次に
+$A_1^-$ および $A_1^+$ と $A_1$ に適用すれば
+\[
+  A_1+A_1=(A_1^-\cup A_1^+)+(A_1^-\cup A_1^+)
+\]
+となる．$i,j\ge2$ の和 $A_i+A_j$ は変化しない．これらを
+$1\le i,j\le r$ について合併すれば主張が従う．
+\end{proof}
+
+\begin{lemma}[減少するコンパクト集合と Minkowski 和]
+\label{lemma:sum-cap-eq-cap-sum}
+$C_0\supset C_1\supset\cdots$ を空でないコンパクト集合の列とする．このとき
+\[
+  \left(\bigcap_{n=0}^{\infty}C_n\right)
+  +
+  \left(\bigcap_{n=0}^{\infty}C_n\right)
+  =
+  \bigcap_{n=0}^{\infty}(C_n+C_n).
+\]
+\end{lemma}
+
+\begin{proof}
+左辺が右辺に含まれることは明らかである．逆向きを示すため，
+$t\in\bigcap_n(C_n+C_n)$ とする．
+\[
+  K_n=\{(x,y)\in C_n\times C_n:x+y=t\}
+\]
+とおくと，$K_n$ は空でないコンパクト集合で，$K_{n+1}\subset K_n$ である．
+コンパクト集合の入れ子共通部分性から $\bigcap_nK_n\ne\varnothing$ である．
+その元を $(x,y)$ とすれば，$x,y\in\bigcap_nC_n$ かつ $x+y=t$ なので，
+$t$ は左辺に属する．
+\end{proof}
+
+\section{Hall の定理の証明}
+
+\begin{proof}[定理 \ref{theorem:C4} の証明]
+\[
+  S_0=T_1(\varnothing)
+  =
+  \left[\frac{\sqrt2-1}{2},\,2(\sqrt2-1)\right],
+  \qquad
+  S_{n+1}=S_n\setminus D_n
+\]
+とおく．$S_n$ は有限個の有界閉区間の和であり，
+補題 \ref{lemma:component-lower-bound} により，$S_{n+1}$ の各成分の長さは
+$\length{D_n}$ 以上である．従って補題 \ref{lemma:sum-invariance} から
+\[
+  S_n+S_n=S_{n+1}+S_{n+1}
+\]
+を得る．また，補題 \ref{lemma:C4-construction} から
+$\bigcap_nS_n=C(4)$ である．補題 \ref{lemma:sum-cap-eq-cap-sum} を適用すると
 \begin{align*}
-C(4) + C(4) &= \bigcap_{i = 0}^\infty S_i + \bigcap_{i = 0}^\infty S_i \\
-&= \bigcap_{i = 0}^\infty (S_i + S_i) \\
-&= S_0 + S_0\\
-&= [\sqrt{2} - 1, 4\sqrt{2} - 4]
+  C(4)+C(4)
+  &=
+  \left(\bigcap_{n=0}^{\infty}S_n\right)
+  +
+  \left(\bigcap_{n=0}^{\infty}S_n\right)\\
+  &=
+  \bigcap_{n=0}^{\infty}(S_n+S_n)
+   =S_0+S_0\\
+  &=[\sqrt2-1,4\sqrt2-4].
 \end{align*}
-分かる．\hfill \qed
-\subsection{定理\ref{theorem: C4}による定理\ref{theorem: ray}の証明}
-$[\sqrt{2} - 1, 4\sqrt{2} - 4]$の大きさは$1$より大きいから，$6\le l$をとると，
-$$
-l = a + [0;b_1, b_2, \cdots ] + [0;c_1, c_2, \cdots ]
-$$
-と表せる．ここで，$a$は$5$以上の整数，$b_i, c_i$は$1\le b_i,c_i\le 4$なる整数である．
+\end{proof}
 
-自然数の両側無限列$A$を
-$$
-A = (\cdots, 1, 1, a, b_1, a, c_1, b_2, b_1, a, c_1, c_2,  b_3, b_2, b_1, a, c_1, c_2, c_3, \cdots)
-$$
-と定める（最初の$a$の場所を$0$番目としておく）．すると，$a$が$5$以上だから，それ以外の場所での$\lambda_i$の値は$\limsup$を取る際に無視してよく，
-$$
-\limsup_{i \to \infty} \lambda_i(A) = l
-$$
-となる．つまり$l \in L$となる．したがって，
-$$
-[6,\infty) \subset L
-$$
-が分かる．\hfill \qed
+\section{$[6,\infty)\subset L$ の証明}
+
+\begin{proof}[定理 \ref{theorem:ray} の証明]
+$\ell\ge6$ を取る．
+\[
+  a=\left\lfloor\ell-(\sqrt2-1)\right\rfloor
+\]
+とおくと $a\ge5$ であり，
+\[
+  \sqrt2-1
+  \le \ell-a
+  <\sqrt2
+  \le4\sqrt2-4.
+\]
+最後の不等式は $\sqrt2\ge4/3$ と同値である．
+従って定理 \ref{theorem:C4} により，
+\[
+  \ell=a+x+y,\qquad
+  x=[0;b_1,b_2,\ldots]\in C(4),\quad
+  y=[0;c_1,c_2,\ldots]\in C(4)
+\]
+と書ける．
+
+ここから両側無限列 $A$ を構成する．負の側をすべて $1$ とし，$0$ 番目以降を
+\[
+  a,\ B_1,\ a,\ B_2,\ a,\ B_3,\ a,\ldots,
+  \qquad
+  B_n=(c_1,\ldots,c_{n-1},b_n,b_{n-1},\ldots,b_1)
+\]
+と並べる．すなわち初めの部分は
+\[
+  \ldots,1,1,\,
+  a,b_1,\,
+  a,c_1,b_2,b_1,\,
+  a,c_1,c_2,b_3,b_2,b_1,\,
+  a,\ldots
+\]
+である．$n\ge1$ に対し，ブロック $B_n$ の直後，すなわち
+$B_{n+1}$ の直前にある $a$ の位置を $j_n$ と書く．その位置から右向きには
+$c_1,\ldots,c_n$ が，左向きには $b_1,\ldots,b_n$ が続くので
+\begin{align*}
+  \lambda_{j_n}(A)
+  &=
+  a+[0;c_1,\ldots,c_n,\ldots]
+  +[0;b_1,\ldots,b_n,\ldots]\\
+  &\longrightarrow a+y+x=\ell.
+\end{align*}
+ここで省略した後続部分は $n$ ごとに変わるが，最初の $n$ 個の部分商が
+一致する連分数全体の直径が $n\to\infty$ で $0$ に収束するため，
+上の極限には影響しない．
+
+$a$ 以外の位置では中心の部分商は $1$ 以上 $4$ 以下であり，
+両側から来る二つの $[0;\ldots]$ はとも $1$ 未満だから
+\[
+  \lambda_i(A)<4+1+1=6\le\ell.
+\]
+一方，$a$ の位置での値は $\ell$ に収束する．従って
+\[
+  \limsup_{i\to\infty}\lambda_i(A)=\ell.
+\]
+よって $\ell\in L$ である．$\ell\ge6$ は任意だったので
+$[6,\infty)\subset L$ が従う．
+\end{proof}
+
+\section{Lean 形式化に向けた分解}
+
+上の証明は，おおむね次の順に形式化できる．
+\begin{enumerate}
+  \item 正整数列の無限連分数を定義し，共通接頭辞を持つ値の収束と
+        cylinder の直径評価を示す．
+  \item 有限連分数を一次分数変換として表し，式
+        \eqref{eq:mobius-length} と補題 \ref{lemma:remove-interval} を示す．
+  \item 実閉区間，有限和，Minkowski 和について補題
+        \ref{lemma:two-closed} と \ref{lemma:sum-invariance} を示す．
+  \item コンパクト集合の入れ子共通部分性を用いて補題
+        \ref{lemma:sum-cap-eq-cap-sum} を示す．
+  \item 三種類の区間からなる再帰木を定義し，補題
+        \ref{lemma:C4-construction} と長さ順列挙を形式化する．
+  \item ブロック列 $A$ を定義し，$a$ の位置とそれ以外の位置を分けて
+        $\limsup_i\lambda_i(A)=\ell$ を示す．
+\end{enumerate}
+特に，(1) の無限連分数 API と，(5) の可算な穴を長さ順に選ぶ部分が
+形式化上の主要な設計点になる．
+
 \begin{thebibliography}{99}
-%\bibitem{ma79} Markoff, A. (1879) {\it Sur les formes quadratiques binaires indéfinies.} Math. Ann. 15, 381–406. 
-%\bibitem{ma80} Markoff, A. (1880) {\it Sur les formes quadratiques binaires indéfinies.} Math. Ann. 17, 379–399. 
-%\bibitem{hall} Hall, M. (1947). On the Sum and Product of Continued Fractions. Annals of Mathematics, 48(4), 966–993. 
-\bibitem{cusick} T.~W. Cusick and M.~E. Flahive, {\it The Markoff and Lagrange spectra}, Mathematical Surveys and Monographs, 30, Amer. Math. Soc., Providence, RI, 1989; MR1010419
+\raggedright
+\bibitem{hall}
+M.~Hall, Jr.,
+\textit{On the sum and product of continued fractions},
+Annals of Mathematics \textbf{48} (1947), no.~4, 966--993.
+
+\bibitem{cusick}
+T.~W. Cusick and M.~E. Flahive,
+\textit{The Markoff and Lagrange spectra},
+Mathematical Surveys and Monographs, 30,
+American Mathematical Society, Providence, RI, 1989.
+
+\bibitem{verify-freiman}
+K.~Yamada,
+\textit{Verify Freiman Constant},
+\url{https://github.com/K-Yamada-2002/verify-freiman-constant},
+accessed July 2026.
 \end{thebibliography}
+
 \end{document}
