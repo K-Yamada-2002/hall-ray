@@ -1,2 +1,7 @@
 # hall-ray
-Lean 4 formalization of existence of Hall's ray
+このレポジトリでは、LagrangeスペクトラムにおけるHall's rayの存在のLean4 による形式化を行う。
+
+# 問題選定の観点，形式化の難しさや面白さ，
+
+# 形式化の方法，その他の工夫など
+形式化にあたって、codexの補助を用いた。
