@@ -17,6 +17,7 @@
 \newcommand{\Npos}{\mathbb{N}_{\ge 1}}
 \newcommand{\Mink}{\mathbin{+_{\mathrm M}}}
 \newcommand{\length}[1]{\lvert #1\rvert}
+\let\lean\path
 
 \renewcommand{\labelenumi}{(\arabic{enumi})}
 
@@ -34,7 +35,8 @@ Hall の連分数 Cantor 集合に関する定理
 \]
 を証明する．さらに，この定理から $[6,\infty)\subset L$ を導く際に必要な
 両側無限列を明示し，その Lagrange 値を厳密に計算する．
-最後に，Lean 4 と Mathlib による形式化に向けて，証明を独立した補題へ分解する．
+最後に，Lean 4 と Mathlib による形式化で用いた補題分解と，
+各主張に対応する Lean ファイル・宣言名を記録する．
 \end{abstract}
 
 \section{Lagrange スペクトラム}
@@ -506,9 +508,9 @@ $a$ 以外の位置では中心の部分商は $1$ 以上 $4$ 以下であり，
 $[6,\infty)\subset L$ が従う．
 \end{proof}
 
-\section{Lean 形式化に向けた分解}
+\section{Lean 形式化との対応}
 
-上の証明は，おおむね次の順に形式化できる．
+上の証明は，おおむね次の順に形式化されている．
 \begin{enumerate}
   \item 正整数列の無限連分数を定義し，共通接頭辞を持つ値の収束と
         cylinder の直径評価を示す．
@@ -523,8 +525,123 @@ $[6,\infty)\subset L$ が従う．
   \item ブロック列 $A$ を定義し，$a$ の位置とそれ以外の位置を分けて
         $\limsup_i\lambda_i(A)=\ell$ を示す．
 \end{enumerate}
-特に，(1) の無限連分数 API と，(5) の可算な穴を長さ順に選ぶ部分が
-形式化上の主要な設計点になる．
+
+\subsection{ファイルと宣言名}
+
+以下でファイル名はすべてリポジトリの \lean{HallRay/} 以下からの相対パスで
+ある．名前空間は，特に断らない限り \texttt{HallRay} の下にある．
+
+{\raggedright
+\begin{description}
+  \item[定義 \ref{def:lagrange-spectrum}]
+    両側列，局所値 $\lambda_i$，Lagrange 値およびスペクトラムは
+    \lean{Lagrange/Basic.lean} の
+    \lean{Lagrange.BiSequence},
+    \lean{Lagrange.lambda},
+    \lean{Lagrange.lagrangeValue},
+    \lean{Lagrange.spectrum} で形式化されている．
+    $\lambda_i$ を中心部分商と左右の tail に分解する式は
+    \lean{Lagrange.lambda_eq_center_add_tails} である．
+
+  \item[無限連分数と cylinder 評価]
+    $[c_0;c_1,c_2,\ldots]$ は
+    \lean{ContinuedFraction/Basic.lean} の
+    \lean{ContinuedFraction.value} で定義される．
+    収束は \lean{ContinuedFraction.tendsto_convergent}，
+    共通接頭辞を持つ二つの値の誤差評価は
+    \lean{ContinuedFraction.abs_value_zero_sub_le_of_common_prefix}，
+    cylinder の直径評価は
+    \lean{ContinuedFraction.abs_tailMap_le_cylinder} に対応する．
+
+  \item[式 \eqref{eq:mobius-length}]
+    \lean{ContinuedFraction/Mobius.lean} の
+    \lean{ContinuedFraction.prefixMap_eq_mobius} と
+    \lean{ContinuedFraction.abs_prefixMap_sub_prefixMap} で形式化されて
+    いる．行列式の絶対値が $1$ であることは
+    \lean{ContinuedFraction.abs_mobius_det}，
+    $0\le q_{n-1}/q_n\le1$ に対応する評価は
+    \lean{ContinuedFraction.denominatorRatio_mem_Icc} である．
+
+  \item[三種類の区間と式 \eqref{eq:children}]
+    $C(N)$，$T_1,T_2,T_3$，$G_1,G_2,G_3$ は
+    \lean{Cantor/Construction.lean} の
+    \lean{Cantor.C}, \lean{Cantor.T1}--\lean{Cantor.T3},
+    \lean{Cantor.G1}--\lean{Cantor.G3} で定義される．
+    一回の分割は \lean{Cantor.prefixMap_interval_split} と
+    \lean{Cantor.HallNode.interval_diff_gap}，
+    stage 全体の再帰式は \lean{Cantor.cantorStage_succ} で表される．
+
+  \item[補題 \ref{lemma:remove-interval}]
+    \lean{Cantor/Construction.lean} の
+    \lean{Cantor.hall_length_condition} が長さ比の代数的不等式を
+    形式化している．再帰木の左右の子区間に対して使う形は
+    \lean{Cantor/Hall.lean} の
+    \lean{Cantor.HallNode.children_length_ge_gap} である．
+
+  \item[補題 \ref{lemma:C4-construction}]
+    stage は \lean{Cantor/Construction.lean} の
+    \lean{Cantor.cantorStage} で定義され，
+    主張そのものは
+    \lean{Cantor.C4_eq_iInter_cantorStage} で形式化されている．
+    入れ子性，コンパクト性，非空性はそれぞれ
+    \lean{Cantor.antitone_cantorStage},
+    \lean{Cantor.isCompact_cantorStage},
+    \lean{Cantor.cantorStage_nonempty} である．
+
+  \item[補題 \ref{lemma:component-lower-bound}]
+    Lean では可算個の gap をあらかじめ長さ順に列挙せず，
+    有限 forest から最大の gap を選んで分割する強帰納法を用いる．
+    対応する中心的な結果は \lean{Cantor/Hall.lean} の
+    \lean{Cantor.HallNode.child_gap_le} と
+    \lean{Cantor.forest_refinement_sum} である．後者の証明中で，
+    未分割節点の最大 gap を選ぶことにより，本文の成分長の不変条件を
+    \lean{Cantor.ForestGood} として維持する．
+
+  \item[補題 \ref{lemma:two-closed}]
+    \lean{Interval/Minkowski.lean} の
+    \lean{Interval.minkowskiSum_Icc_split} に対応する．
+    閉区間同士の和の公式は
+    \lean{Interval.minkowskiSum_Icc} である．
+
+  \item[補題 \ref{lemma:sum-invariance}]
+    \lean{Interval/Minkowski.lean} の
+    \lean{Interval.minkowskiSum_union_split_self} が一般の有限区間和に
+    対応する．連分数区間の向きに依存しない版と，再帰木上で直接使う版は
+    それぞれ \lean{Interval.minkowskiSum_uIcc_split_self} と
+    \lean{Cantor/Hall.lean} の
+    \lean{Cantor.HallNode.minkowskiSum_union_split} である．
+
+  \item[補題 \ref{lemma:sum-cap-eq-cap-sum}]
+    \lean{Interval/Minkowski.lean} の
+    \lean{Interval.minkowskiSum_iInter_self} に対応する．
+
+  \item[定理 \ref{theorem:C4}]
+    \lean{Cantor/Hall.lean} の \lean{Cantor.hall_C4} である．
+    各有限 stage の自己和が初期区間の自己和に等しいことは
+    \lean{Cantor.cantorStage_selfSum_eq_zero} で示される．
+
+  \item[指定した Lagrange 値を実現する列]
+    \lean{Lagrange/BlockSequence.lean} の
+    \lean{Lagrange.sparseSequence} が対応する．Lean では本文に書いた
+    ブロックの逐次連結の代わりに，互いに素な
+    \lean{Lagrange.anchor} の近傍へ長さの増大する左右の接頭辞を配置する．
+    anchor 上の誤差評価は
+    \lean{Lagrange.lambda_sparseSequence_anchor_error}，
+    limsup を同定する一般補題は
+    \lean{Lagrange.lagrangeValue_eq_of_tendsto_subsequence}，
+    構成の結論は \lean{Lagrange.large_value_mem_spectrum} である．
+
+  \item[定理 \ref{theorem:ray}]
+    $\ell$ を整数部分商と $C(4)$ の二点の和へ分解する算術部分は
+    \lean{Theorems/HallRay.lean} の
+    \lean{exists_large_partialQuotient}，
+    最終結果は同ファイルの \lean{hall_ray} で形式化されている．
+\end{description}
+\par}
+
+この対応表は，本文の一つの補題が Lean でも必ず一つの宣言になることを
+意味しない．区間の向き，有限和の表現，limsup の有界性など，型と適用条件を
+明示するための補助定理は各ファイル内にさらに分割されている．
 
 \begin{thebibliography}{99}
 \raggedright
