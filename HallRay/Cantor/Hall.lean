@@ -121,10 +121,9 @@ theorem HallNode.gapLength_eq_gapAt (v : HallNode) :
     simp only [HallNode.gapLength, gapAt] <;>
     simp_rw [prefixMap_append_eta, prefixMap_append_xi] <;>
     simp only [q1_val, q2_val, q3_val, q4_val] <;>
-    norm_num <;>
-    simp [add_assoc, add_comm, add_left_comm]
+    norm_num
 
-theorem gapAt_succ_le (w : Word) (k : ℕ) (hk1 : 1 ≤ k) (hk2 : k ≤ 2) :
+theorem gapAt_succ_le (w : Word) (k : ℕ) (hk1 : 1 ≤ k) (_hk2 : k ≤ 2) :
     gapAt w (k + 1) ≤ gapAt w k := by
   let Cq : ℝ := (mobiusCoeffs w).C
   let Dq : ℝ := (mobiusCoeffs w).D
@@ -297,7 +296,8 @@ theorem HallNode.child_gap_le (v child : HallNode)
   rcases v with ⟨w, state⟩
   cases state with
   | one =>
-      simp [HallNode.children, HallNode.leftChild, HallNode.rightChild] at hchild
+      simp only [HallNode.children, HallNode.leftChild, HallNode.rightChild,
+        List.mem_cons, List.not_mem_nil, or_false] at hchild
       rcases hchild with rfl | rfl
       · rw [HallNode.gapLength_eq_gapAt, HallNode.gapLength_eq_gapAt]
         exact gapAt_append_one_le w q1 1 (by rw [q1_val]; norm_num)
@@ -305,7 +305,8 @@ theorem HallNode.child_gap_le (v child : HallNode)
       · rw [HallNode.gapLength_eq_gapAt, HallNode.gapLength_eq_gapAt]
         exact gapAt_succ_le w 1 (by omega) (by omega)
   | two =>
-      simp [HallNode.children, HallNode.leftChild, HallNode.rightChild] at hchild
+      simp only [HallNode.children, HallNode.leftChild, HallNode.rightChild,
+        List.mem_cons, List.not_mem_nil, or_false] at hchild
       rcases hchild with rfl | rfl
       · rw [HallNode.gapLength_eq_gapAt, HallNode.gapLength_eq_gapAt]
         exact gapAt_append_one_le w q2 2 (by rw [q2_val]; norm_num)
@@ -313,7 +314,8 @@ theorem HallNode.child_gap_le (v child : HallNode)
       · rw [HallNode.gapLength_eq_gapAt, HallNode.gapLength_eq_gapAt]
         exact gapAt_succ_le w 2 (by omega) (by omega)
   | three =>
-      simp [HallNode.children, HallNode.leftChild, HallNode.rightChild] at hchild
+      simp only [HallNode.children, HallNode.leftChild, HallNode.rightChild,
+        List.mem_cons, List.not_mem_nil, or_false] at hchild
       rcases hchild with rfl | rfl
       · rw [HallNode.gapLength_eq_gapAt, HallNode.gapLength_eq_gapAt]
         exact gapAt_append_one_le w q3 3 (by rw [q3_val]; norm_num)
@@ -661,7 +663,7 @@ theorem forestWork_split_lt {v : HallNode} {r : ℕ}
   have hsum := hperm.sum_eq
   subst chosen
   simp only [List.map_cons, List.sum_cons] at hsum
-  simp only [forestWork, List.map_cons, List.sum_cons, WorkNode.work]
+  simp only [forestWork, List.map_cons, List.sum_cons]
   have hwork_left :=
     WorkNode.work_node_irrel v.leftChild v r
   have hwork_right :=
@@ -705,7 +707,7 @@ theorem forest_refinement_sum (bound : ℝ) (forest : List WorkNode)
             by_contra hwrem
             have : w ∈ candidates := by
               simp [candidates, hw, hwrem]
-            simpa [hempty] using this
+            simp [hempty] at this
           have := (forestWork_eq_zero_iff forest).2 hallzero
           omega
         obtain ⟨chosen, hchosenCand, hmax⟩ :=

@@ -522,8 +522,7 @@ theorem guidedPosition_invariant (digits : ℕ → PartialQuotient)
   | succ n ih =>
       rcases hp : guidedPosition digits n with ⟨⟨w, state⟩, consumed⟩
       rw [hp] at ih
-      simp only [GuidedPosition.consumed, GuidedPosition.node, HallNode.word,
-        HallNode.state] at ih
+      simp only at ih
       cases state with
       | one =>
           by_cases hdigit : (digits consumed).1 = 1
@@ -595,8 +594,7 @@ theorem value_mem_guidedPosition_interval (digits : ℕ → PartialQuotient)
   have hinv := guidedPosition_invariant digits hdigits n
   rcases hp : guidedPosition digits n with ⟨⟨w, state⟩, consumed⟩
   rw [hp] at hinv
-  simp only [GuidedPosition.consumed, GuidedPosition.node, HallNode.word,
-    HallNode.state] at hinv
+  simp only at hinv
   have hlen : consumed = w.length := by
     have h := congrArg List.length hinv.1
     simpa using h
@@ -721,59 +719,62 @@ theorem HallNode.child_allowed_rank (v child : HallNode)
   rcases v with ⟨w, state⟩
   cases state with
   | one =>
-      simp [HallNode.children, HallNode.leftChild, HallNode.rightChild] at hchild
+      simp only [HallNode.children, HallNode.leftChild, HallNode.rightChild,
+        List.mem_cons, List.not_mem_nil, or_false] at hchild
       rcases hchild with rfl | rfl
       · constructor
         · intro a ha
-          simp only [HallNode.WordAllowed, HallNode.word] at hv ⊢
+          simp only [HallNode.WordAllowed] at hv ⊢
           rw [List.mem_append] at ha
           rcases ha with ha | ha
           · exact hv a ha
-          · simp at ha
+          · simp only [List.mem_singleton] at ha
             subst a
             rw [q1_val]
             norm_num
-        · simp [HallNode.rank, HallState.offset] <;> omega
+        · simp [HallNode.rank, HallState.offset]
       · exact ⟨hv, by simp [HallNode.rank, HallState.offset]⟩
   | two =>
-      simp [HallNode.children, HallNode.leftChild, HallNode.rightChild] at hchild
+      simp only [HallNode.children, HallNode.leftChild, HallNode.rightChild,
+        List.mem_cons, List.not_mem_nil, or_false] at hchild
       rcases hchild with rfl | rfl
       · constructor
         · intro a ha
-          simp only [HallNode.WordAllowed, HallNode.word] at hv ⊢
+          simp only [HallNode.WordAllowed] at hv ⊢
           rw [List.mem_append] at ha
           rcases ha with ha | ha
           · exact hv a ha
-          · simp at ha
+          · simp only [List.mem_singleton] at ha
             subst a
             rw [q2_val]
             norm_num
-        · simp [HallNode.rank, HallState.offset] <;> omega
+        · (simp [HallNode.rank, HallState.offset]; omega)
       · exact ⟨hv, by simp [HallNode.rank, HallState.offset]⟩
   | three =>
-      simp [HallNode.children, HallNode.leftChild, HallNode.rightChild] at hchild
+      simp only [HallNode.children, HallNode.leftChild, HallNode.rightChild,
+        List.mem_cons, List.not_mem_nil, or_false] at hchild
       rcases hchild with rfl | rfl
       · constructor
         · intro a ha
-          simp only [HallNode.WordAllowed, HallNode.word] at hv ⊢
+          simp only [HallNode.WordAllowed] at hv ⊢
           rw [List.mem_append] at ha
           rcases ha with ha | ha
           · exact hv a ha
-          · simp at ha
+          · simp only [List.mem_singleton] at ha
             subst a
             rw [q3_val]
             norm_num
-        · simp [HallNode.rank, HallState.offset] <;> omega
+        · (simp [HallNode.rank, HallState.offset]; omega)
       · constructor
         · intro a ha
-          simp only [HallNode.WordAllowed, HallNode.word] at hv ⊢
+          simp only [HallNode.WordAllowed] at hv ⊢
           rw [List.mem_append] at ha
           rcases ha with ha | ha
           · exact hv a ha
-          · simp at ha
+          · simp only [List.mem_singleton] at ha
             subst a
             rw [q4_val]
-        · simp [HallNode.rank, HallState.offset] <;> omega
+        · (simp [HallNode.rank, HallState.offset]; omega)
 
 theorem nodeAtLevel_allowed_rank {n : ℕ} {v : HallNode}
     (hv : v ∈ nodesAtLevel n) :
@@ -877,7 +878,7 @@ theorem uIcc_diff_uIoo_eq_union_uIcc {a0 a1 a2 a3 : ℝ}
 
 theorem uIcc_diff_uIoo_of_monotone_or_antitone
     (f : ℝ → ℝ) {x0 x1 x2 x3 : ℝ}
-    (h01 : x0 ≤ x1) (h12 : x1 ≤ x2) (h23 : x2 ≤ x3)
+    (_h01 : x0 ≤ x1) (_h12 : x1 ≤ x2) (_h23 : x2 ≤ x3)
     (hmono :
       (f x0 ≤ f x1 ∧ f x1 ≤ f x2 ∧ f x2 ≤ f x3) ∨
       (f x3 ≤ f x2 ∧ f x2 ≤ f x1 ∧ f x1 ≤ f x0)) :
@@ -1045,7 +1046,7 @@ theorem cantorStage_succ (n : ℕ) :
   constructor
   · rintro ⟨child, ⟨parent, hp, hc⟩, hx⟩
     refine ⟨parent, hp, ?_⟩
-    simp [HallNode.children] at hc
+    simp only [HallNode.children, List.mem_cons, List.not_mem_nil, or_false] at hc
     rcases hc with rfl | rfl
     · exact Or.inl hx
     · exact Or.inr hx
